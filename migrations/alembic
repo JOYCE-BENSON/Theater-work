@@ -1,0 +1,45 @@
+
+"""Initial migration
+
+Revision ID: initial_migration
+Create Date: 2025-03-10
+"""
+
+from alembic import op
+import sqlalchemy as sa
+
+
+# revision identifiers
+revision = 'initial_migration'
+down_revision = None
+branch_labels = None
+depends_on = None
+
+
+def upgrade():
+    # Create roles table
+    op.create_table(
+        'roles',
+        sa.Column('id', sa.Integer(), nullable=False),
+        sa.Column('character_name', sa.String(), nullable=True),
+        sa.PrimaryKeyConstraint('id')
+    )
+    
+    # Create auditions table with foreign key relationship to roles
+    op.create_table(
+        'auditions',
+        sa.Column('id', sa.Integer(), nullable=False),
+        sa.Column('actor', sa.String(), nullable=True),
+        sa.Column('location', sa.String(), nullable=True),
+        sa.Column('phone', sa.Integer(), nullable=True),
+        sa.Column('hired', sa.Boolean(), default=False),
+        sa.Column('role_id', sa.Integer(), nullable=True),
+        sa.ForeignKeyConstraint(['role_id'], ['roles.id'], ),
+        sa.PrimaryKeyConstraint('id')
+    )
+
+
+def downgrade():
+    # Drop tables in a reverse order (to maintain referential integrity)
+    op.drop_table('auditions')
+    op.drop_table('roles')
